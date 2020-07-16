@@ -1,6 +1,7 @@
 # KickFFT
 A library for implementing a discrete Fourier transform on an input data array. This library uses lookup tables for the
 trigonometric functions to reduce processing power and increase code efficiency.
+Specifically written for Arduino, but can be ported to other microcontrollers.
 
 
 Partially used in Linnes Lab's Kick LL smartwatch, a research device for measuring heart rate, respiration, and blood oxygen.
