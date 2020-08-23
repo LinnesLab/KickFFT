@@ -2,7 +2,7 @@
  FILENAME:	KickFFT.cpp
  AUTHOR:	Orlando S. Hoilett and Akio K. Fujita
  EMAIL:     orlandohoilett@gmail.com
- VERSION:	2.0.0
+ VERSION:	3.0.0
  
  
  AFFILIATIONS
@@ -42,6 +42,10 @@
  2020/08/21:1555>
  			- Removed U2I function.
  			- Moved to templated class.
+ Version 3.0.0
+ 2020/08/23:0406> (UTC-5)
+ 			- changed magnitude types to int32_t to match isqrt function
+			and prevent overflow
  
  
  FUTURE UPDATES TO INCLUDE
@@ -52,6 +56,7 @@
  5. Making this a templated class, meaning it will accept any data type for the
  data to be filtered.
  6. Implements inverse fourier transform
+ 7. Consider making isqrt function to a uint32_t
  
  
  
@@ -106,25 +111,25 @@ class KickFFT
 	
 public:
 	
-	static void fft(uint16_t samples, const Type data[], Type mag[]);
+	static void fft(uint16_t samples, const Type data[], int32_t mag[]);
 		
-	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[]);
+	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[]);
 	
 	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[],
-					Type mag[], uint16_t &startIndex, uint16_t &endIndex);
+					int32_t mag[], uint16_t &startIndex, uint16_t &endIndex);
 	
-	static void psd(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[]);
+	static void psd(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[]);
 	
 	static void psd(float fs, float f1, float f2, uint16_t samples, const Type data[],
-					Type mag[], uint16_t &startIndex, uint16_t &endIndex);
+					int32_t mag[], uint16_t &startIndex, uint16_t &endIndex);
 
-	//static void ifft(float fs, float f1, float f2, uint16_t samples, Type data[], const Type mag[]);
+//	static void ifft(float fs, uint16_t samples, const Type mag[], Type output[]);
 
 };
 
 
 
-//void KickFFT<Type>::fft(uint16_t samples, const Type data[], Type mag[])
+//void KickFFT<Type>::fft(uint16_t samples, const Type data[], int32_t mag[])
 //samples	number of samples in input data array
 //data		input data array
 //mag		array to store calculated frequency magnitdues
@@ -134,7 +139,7 @@ public:
 //
 //This method computes the entire DFT across 0 to Fs/2.
 template<typename Type>
-void KickFFT<Type>::fft(uint16_t samples, const Type data[], Type mag[])
+void KickFFT<Type>::fft(uint16_t samples, const Type data[], int32_t mag[])
 {
 	uint16_t startIndex = 0;
 	uint16_t endIndex = samples;
@@ -197,7 +202,7 @@ void KickFFT<Type>::fft(uint16_t samples, const Type data[], Type mag[])
 }
 
 
-//void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[])
+//void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[])
 //fs		sampling frequency for input data array Hertz (Hz)
 //f1		low frequency bound to calculate frequency spectrum
 //				- useful for limiting range and decreasing computation time
@@ -215,7 +220,7 @@ void KickFFT<Type>::fft(uint16_t samples, const Type data[], Type mag[])
 //
 //Computes the DFT across the range f1 to f2
 template<typename Type>
-void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[])
+void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[])
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -281,7 +286,7 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 
 
 //void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[],
-//						  Type mag[], uint16_t &startIndex, uint16_t &endIndex)
+//						  int32_t mag[], uint16_t &startIndex, uint16_t &endIndex)
 //
 //fs			sampling frequency for input data array Hertz (Hz)
 //f1			low frequency bound to calculate frequency spectrum
@@ -301,7 +306,7 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 //here <https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition>
 template<typename Type>
 void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[],
-				  Type mag[], uint16_t &startIndex, uint16_t &endIndex)
+						int32_t mag[], uint16_t &startIndex, uint16_t &endIndex)
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -367,7 +372,7 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 }
 
 
-//void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[])
+//void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[])
 //fs		sampling frequency for input data array Hertz (Hz)
 //f1		low frequency bound to calculate frequency spectrum
 //				- useful for limiting range and decreasing computation time
@@ -387,7 +392,7 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 //avoiding having to scan through the arrays multiple times in the fft method
 //and then again for the psd method.
 template<typename Type>
-void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[], Type mag[])
+void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[], int32_t mag[])
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -455,7 +460,7 @@ void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Ty
 
 
 //void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[],
-//						  Type mag[], uint16_t &startIndex, uint16_t &endIndex)
+//						  int32_t mag[], uint16_t &startIndex, uint16_t &endIndex)
 //
 //fs		sampling frequency for input data array Hertz (Hz)
 //f1		low frequency bound to calculate frequency spectrum
@@ -476,7 +481,7 @@ void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Ty
 //and then again for the psd method.
 template<typename Type>
 void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Type data[],
-						Type mag[], uint16_t &startIndex, uint16_t &endIndex)
+						int32_t mag[], uint16_t &startIndex, uint16_t &endIndex)
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -542,6 +547,37 @@ void KickFFT<Type>::psd(float fs, float f1, float f2, uint16_t samples, const Ty
 		mag[i] = mag[i]*mag[i];
 	}
 }
+
+
+//template<typename Type>
+//void KickFFT<Type>::ifft(float fs, uint16_t samples, const Type mag[], Type output[])
+//{
+//	Type maxMagnitude = mag[0];
+//	for(uint16_t i = 1; i < samples; i++)
+//	{
+//		if(mag[i] > maxMagnitude) maxMagnitude = mag[i];
+//	}
+//
+//
+//	for(uint16_t i = 0; i < samples; i++)
+//	{
+//		output[i] = 0;
+//	}
+//
+//
+//	for(uint16_t i = 0; i < samples; i++)
+//	{
+//		for(uint16_t j = 0; j < samples/2; j++)
+//		{
+//			output[i] += mag[j]*sin(2*PI*(j*(fs/samples))*(i*1/fs));
+//
+////			Serial.print(i);
+////			Serial.print(",");
+////			Serial.print(j);
+////			Serial.println();
+//		}
+//	}
+//}
 
 
 #endif /* KickFFT_h */
