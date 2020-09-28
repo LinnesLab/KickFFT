@@ -31,8 +31,8 @@
  *           - Moved to a templated class.
  * Version 3.0.0
  * 2020/08/23:0406> (UTC-5)
- *           - changed magnitude types to int32_t to
- *           match isqrt function and prevent overflow
+ *           - changed magnitude types to uint32_t to
+ *           match isqrt function.
  * 
  * 
  * DISCLAIMER
@@ -81,7 +81,7 @@ void setup()
   Serial.begin(9600); //Use SerialUSB for SparkFun SAMD21 boards
   while(!Serial); //will not run until Serial Monitor is open
 
-  int32_t mag[samples] = {0};
+  uint32_t mag[samples] = {0};
   uint16_t startIndex = 0;
   uint16_t endIndex = 0;
   KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input, mag, startIndex, endIndex);
